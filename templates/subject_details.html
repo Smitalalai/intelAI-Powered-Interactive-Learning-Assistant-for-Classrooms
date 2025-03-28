@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ subject.name }} - Quiz Master{% endblock %}
+
+{% block content %}
+<h2>{{ subject.name }}</h2>
+<p>{{ subject.description }}</p>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">Chapters</div>
+            <div class="card-body">
+                <div class="row">
+                    {% for chapter in chapters %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ chapter.name }}</h5>
+                                    <p class="card-text">{{ chapter.description }}</p>
+                                    <a href="{{ url_for('chapter_detail', chapter_id=chapter.id) }}" class="btn btn-primary">View Quizzes</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-12">
+                            <p>No chapters available for this subject.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

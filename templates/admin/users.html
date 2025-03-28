@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Users - Quiz Master{% endblock %}
+
+{% block content %}
+<h2>Manage Users</h2>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">Registered Users</div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Qualification</th>
+                            <th>DOB</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.full_name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.qualification }}</td>
+                                <td>{{ user.dob.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <a href="#" class="btn btn-sm btn-info">View Attempts</a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="7">No users found.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

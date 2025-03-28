@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Quiz - Quiz Master{% endblock %}
+
+{% block content %}
+<h2>Edit Quiz</h2>
+
+<div class="row mt-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">Edit Quiz</div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('edit_quiz', quiz_id=quiz.id) }}">
+                    <div class="mb-3">
+                        <label for="chapter_id" class="form-label">Chapter</label>
+                        <select class="form-select" id="chapter_id" name="chapter_id" required>
+                            {% for chapter in chapters %}
+                                <option value="{{ chapter.id }}" {% if chapter.id == quiz.chapter_id %}selected{% endif %}>{{ chapter.subject.name }} - {{ chapter.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Quiz Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ quiz.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date_of_quiz" class="form-label">Date of Quiz</label>
+                        <input type="date" class="form-control" id="date_of_quiz" name="date_of_quiz" value="{{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="time_duration" class="form-label">Time Duration (HH:MM)</label>
+                        <input type="text" class="form-control" id="time_duration" name="time_duration" pattern="[0-9]{2}:[0-9]{2}" placeholder="00:30" value="{{ quiz.time_duration }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="remarks" class="form-label">Remarks</label>
+                        <textarea class="form-control" id="remarks" name="remarks" rows="3">{{ quiz.remarks }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pool_id" class="form-label">Question Pool</label>
+                        <select class="form-select" id="pool_id" name="pool_id" required>
+                            {% for pool in pools %}
+                                <option value="{{ pool.id }}" {% if pool.id == quiz.pool_id %}selected{% endif %}>{{ pool.chapter.subject.name }} - {{ pool.chapter.name }} - {{ pool.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="num_questions" class="form-label">Number of Questions (0 for all)</label>
+                        <input type="number" class="form-control" id="num_questions" name="num_questions" min="0" value="{{ quiz.num_questions_from_pool }}">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="randomize_questions" name="randomize_questions" {% if quiz.randomize_questions %}checked{% endif %}>
+                        <label class="form-check-label" for="randomize_questions">Randomize Questions</label>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="show_correct_answers" name="show_correct_answers" {% if quiz.show_correct_answers %}checked{% endif %}>
+                        <label class="form-check-label" for="show_correct_answers">Show Correct Answers After Quiz</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Quiz</button>
+                    <a href="{{ url_for('admin_quizzes') }}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

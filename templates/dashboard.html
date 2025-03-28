@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Quiz Master{% endblock %}
+
+{% block content %}
+<h2>Welcome, {{ user.full_name }}</h2>
+
+{% if user.is_admin %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">Admin Dashboard</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">Subjects</h5>
+                                    <p class="card-text">Manage all subjects</p>
+                                    <a href="{{ url_for('admin_subjects') }}" class="btn btn-light">Manage</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">Chapters</h5>
+                                    <p class="card-text">Manage all chapters</p>
+                                    <a href="{{ url_for('admin_chapters') }}" class="btn btn-light">Manage</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">Question Pools</h5>
+                                    <p class="card-text">Manage question pools</p>
+                                    <a href="{{ url_for('admin_pools') }}" class="btn btn-light">Manage</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-warning text-dark">
+                                <div class="card-body">
+                                    <h5 class="card-title">Quizzes</h5>
+                                    <p class="card-text">Manage all quizzes</p>
+                                    <a href="{{ url_for('admin_quizzes') }}" class="btn btn-light">Manage</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-danger text-white">
+                                <div class="card-body">
+                                    <h5 class="card-title">Users</h5>
+                                    <p class="card-text">Manage all users</p>
+                                    <a href="{{ url_for('admin_users') }}" class="btn btn-light">Manage</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">Available Subjects</div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for subject in subjects %}
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ subject.name }}</h5>
+                                        <p class="card-text">{{ subject.description }}</p>
+                                        <a href="{{ url_for('subject_detail', subject_id=subject.id) }}" class="btn btn-primary">View Chapters</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-12">
+                                <p>No subjects available.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">Your Recent Quiz Attempts</div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Quiz</th>
+                                <th>Score</th>
+                                <th>Percentage</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attempt in attempts %}
+                                <tr>
+                                    <td>{{ attempt.quiz.name }}</td>
+                                    <td>{{ attempt.score }}/{{ attempt.total_questions }}</td>
+                                    <td>{{ attempt.percentage|round(2) }}%</td>
+                                    <td>{{ attempt.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('quiz_results', attempt_id=attempt.id) }}" class="btn btn-sm btn-info">View Results</a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5">No quiz attempts yet.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
