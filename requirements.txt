@@ -1,0 +1,69 @@
+# Core AI and ML libraries
+openvino==2024.5.0
+torch>=2.0.0
+transformers>=4.30.0
+optimum[openvino]>=1.14.0
+sentence-transformers>=2.2.0
+
+# Audio processing
+openai-whisper>=20231117
+TTS>=0.18.0
+soundfile>=0.12.1
+librosa>=0.10.0
+
+# Computer Vision
+opencv-python>=4.8.0
+Pillow>=10.0.0
+
+# Web framework and API
+fastapi>=0.100.0
+uvicorn>=0.23.0
+streamlit>=1.25.0
+gradio>=3.40.0
+
+# Data processing and visualization
+pandas>=2.0.0
+numpy>=1.24.0
+requests>=2.31.0
+plotly>=5.15.0
+scikit-learn>=1.3.0
+
+# Educational content and NLP
+nltk>=3.8.0
+spacy>=3.6.0
+textstat>=0.7.0
+
+# Utilities
+python-multipart>=0.0.6
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+aiofiles>=23.0.0
+asyncio-mqtt>=0.16.0
+
+# Database support
+sqlalchemy>=2.0.0
+sqlite3
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+httpx>=0.24.0  # For FastAPI testing
+pytest-mock>=3.11.0
+coverage>=7.0.0
+black>=23.0.0
+flake8>=6.0.0
+isort>=5.12.0
+
+# Jupyter and notebooks
+jupyter>=1.0.0
+ipykernel>=6.25.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Performance monitoring
+psutil>=5.9.0
+memory-profiler>=0.61.0
+
+# Educational extensions
+pytz>=2023.3
+langdetect>=1.0.9
