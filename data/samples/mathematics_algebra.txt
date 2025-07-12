@@ -1,0 +1,20 @@
+Introduction to Algebra
+        
+        Algebra is a branch of mathematics that uses symbols and letters to represent numbers and quantities in formulas and equations. The main purpose of algebra is to find unknown values, called variables.
+        
+        Key Concepts:
+        1. Variables: Letters that represent unknown numbers (like x, y, z)
+        2. Expressions: Combinations of variables, numbers, and operations (like 2x + 3)
+        3. Equations: Mathematical statements that show two expressions are equal (like 2x + 3 = 7)
+        
+        Basic Operations:
+        - Addition and subtraction of like terms
+        - Multiplication and division of variables
+        - Solving simple equations
+        
+        Example: If 2x + 3 = 7, then 2x = 4, so x = 2
+        
+        Practice Problems:
+        1. Solve for x: 3x + 5 = 14
+        2. Simplify: 4x + 2x - 3x
+        3. If y = 2x + 1 and x = 3, what is y?

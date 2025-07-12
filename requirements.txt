@@ -1,9 +1,76 @@
-# Minimal requirements for Vercel deployment
+# Core Flask Application (EduAI Pro)
 Flask==3.1.0
 Flask-SQLAlchemy==3.1.1
 Werkzeug==3.1.3
+
+# AI and OpenAI Integration
 openai==1.40.0
+
+# Core AI and ML libraries (OpenVINO Optimization)
+openvino==2024.5.0
+torch>=2.0.0
+transformers>=4.30.0
+optimum[openvino]>=1.14.0
+sentence-transformers>=2.2.0
+
+# Image Processing
 numpy==1.26.4
-Pillow==10.4.0
-python-multipart==0.0.9
+Pillow>=10.0.0
+opencv-python>=4.8.0
+
+# Audio Processing (Multimodal Support)
+openai-whisper>=20231117
+TTS>=0.18.0
+soundfile>=0.12.1
+librosa>=0.10.0
+
+# Web Framework and API
+fastapi>=0.100.0
+uvicorn>=0.23.0
+streamlit>=1.25.0
+gradio>=3.40.0
+
+# Common Utilities
+python-multipart>=0.0.6
 python-dotenv==1.0.1
+pydantic>=2.0.0
+requests>=2.31.0
+
+# Data Processing and Analytics
+pandas>=2.0.0
+plotly>=5.15.0
+scikit-learn>=1.3.0
+
+# Educational Content and NLP
+nltk>=3.8.0
+spacy>=3.6.0
+textstat>=0.7.0
+
+# Database Support
+sqlalchemy>=2.0.0
+
+# Development and Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+httpx>=0.24.0
+pytest-mock>=3.11.0
+coverage>=7.0.0
+black>=23.0.0
+flake8>=6.0.0
+isort>=5.12.0
+
+# Jupyter and Notebooks
+jupyter>=1.0.0
+ipykernel>=6.25.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Performance Monitoring
+psutil>=5.9.0
+memory-profiler>=0.61.0
+aiofiles>=23.0.0
+asyncio-mqtt>=0.16.0
+
+# Educational Extensions
+pytz>=2023.3
+langdetect>=1.0.9
