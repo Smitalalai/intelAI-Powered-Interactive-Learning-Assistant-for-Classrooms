@@ -1,0 +1,636 @@
+{% extends 'base.html' %}
+
+{% block title %}Live AI Demo - EduAI Pro{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="demo-header text-center mb-4">
+                <h1><i class="fas fa-chalkboard-teacher me-2"></i>Live AI Classroom Demo</h1>
+                <p class="lead">Real-time AI-powered learning with OpenVINO optimization</p>
+                <div class="performance-metrics" id="performanceMetrics">
+                    <span class="badge bg-success me-2">
+                        <i class="fas fa-tachometer-alt me-1"></i>
+                        Latency: <span id="latencyValue">--</span>ms
+                    </span>
+                    <span class="badge bg-info me-2">
+                        <i class="fas fa-microchip me-1"></i>
+                        Device: <span id="deviceType">--</span>
+                    </span>
+                    <span class="badge bg-warning">
+                        <i class="fas fa-chart-line me-1"></i>
+                        Throughput: <span id="throughputValue">--</span> ops/sec
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Multimodal Input Panel -->
+        <div class="col-lg-6">
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h4><i class="fas fa-microphone-alt me-2"></i>Multimodal Input</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Voice Input -->
+                    <div class="input-section mb-4">
+                        <h5><i class="fas fa-volume-up me-2"></i>Voice Interaction</h5>
+                        <div class="voice-controls d-flex gap-2 mb-3">
+                            <button class="btn btn-danger" id="recordBtn" onclick="toggleRecording()">
+                                <i class="fas fa-microphone me-1"></i>
+                                <span id="recordText">Start Recording</span>
+                            </button>
+                            <button class="btn btn-secondary" id="playBtn" onclick="playResponse()" disabled>
+                                <i class="fas fa-play me-1"></i>Play Response
+                            </button>
+                        </div>
+                        <div class="voice-feedback" id="voiceFeedback">
+                            <div class="transcript-box p-3 bg-light rounded">
+                                <strong>Transcript:</strong>
+                                <div id="transcriptText">Click "Start Recording" to begin...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="input-section mb-4">
+                        <h5><i class="fas fa-image me-2"></i>Visual Analysis</h5>
+                        <div class="image-upload-area">
+                            <input type="file" id="imageInput" accept="image/*" class="form-control mb-3">
+                            <input type="text" id="imageContext" placeholder="Add context (e.g., 'mathematics diagram')" class="form-control mb-3">
+                            <button class="btn btn-primary" onclick="analyzeImage()">
+                                <i class="fas fa-search me-1"></i>Analyze Image
+                            </button>
+                        </div>
+                        <div id="imagePreview" class="mt-3"></div>
+                    </div>
+
+                    <!-- Text Input -->
+                    <div class="input-section">
+                        <h5><i class="fas fa-keyboard me-2"></i>Text Interaction</h5>
+                        <div class="input-group mb-3">
+                            <select class="form-select" id="textInteractionType">
+                                <option value="chat">Chat</option>
+                                <option value="question">Question</option>
+                                <option value="explanation">Explanation</option>
+                                <option value="summary">Summary</option>
+                            </select>
+                            <input type="text" class="form-control" id="textInput" placeholder="Ask me anything...">
+                            <button class="btn btn-success" onclick="processTextInput()">
+                                <i class="fas fa-paper-plane me-1"></i>Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Response Panel -->
+        <div class="col-lg-6">
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-gradient-success text-white">
+                    <h4><i class="fas fa-robot me-2"></i>AI Response</h4>
+                </div>
+                <div class="card-body">
+                    <div class="response-area" id="responseArea">
+                        <div class="welcome-message text-center p-4">
+                            <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+                            <h5>AI Assistant Ready</h5>
+                            <p>Try voice, image, or text input to see real-time AI responses!</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Response Details -->
+                    <div class="response-details mt-3" id="responseDetails" style="display: none;">
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Response Time: <span id="responseTime">--</span>ms
+                                </small>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    <i class="fas fa-percentage me-1"></i>
+                                    Confidence: <span id="confidenceScore">--</span>%
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Follow-up Suggestions -->
+                    <div class="suggestions-area mt-3" id="suggestionsArea" style="display: none;">
+                        <h6><i class="fas fa-lightbulb me-2"></i>Suggestions:</h6>
+                        <div id="suggestionsList" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Dashboard -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg">
+                <div class="card-header bg-gradient-dark text-white">
+                    <h4><i class="fas fa-chart-bar me-2"></i>Live Performance Analytics</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="metric-card text-center p-3 bg-primary text-white rounded">
+                                <h3 id="totalInteractions">0</h3>
+                                <p>Total Interactions</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-card text-center p-3 bg-success text-white rounded">
+                                <h3 id="avgLatency">--</h3>
+                                <p>Avg Latency (ms)</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-card text-center p-3 bg-warning text-white rounded">
+                                <h3 id="voiceInteractions">0</h3>
+                                <p>Voice Interactions</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="metric-card text-center p-3 bg-info text-white rounded">
+                                <h3 id="imageAnalyses">0</h3>
+                                <p>Image Analyses</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Real-time Chart -->
+                    <div class="chart-container mt-4">
+                        <canvas id="performanceChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accessibility Features Panel -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-lg">
+                <div class="card-header bg-gradient-info text-white">
+                    <h4><i class="fas fa-universal-access me-2"></i>Accessibility Features</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Enable Accessibility Features:</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="highContrast">
+                                <label class="form-check-label" for="highContrast">High Contrast Mode</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="textToSpeech">
+                                <label class="form-check-label" for="textToSpeech">Text-to-Speech</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="voiceNavigation">
+                                <label class="form-check-label" for="voiceNavigation">Voice Navigation</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="simplifiedLanguage">
+                                <label class="form-check-label" for="simplifiedLanguage">Simplified Language</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="visualIndicators">
+                                <label class="form-check-label" for="visualIndicators">Visual Indicators</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="gestureControl">
+                                <label class="form-check-label" for="gestureControl">Gesture Control</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js for analytics -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Live Demo JavaScript
+let isRecording = false;
+let mediaRecorder = null;
+let audioChunks = [];
+let sessionId = 'demo_session_' + Date.now();
+let interactionCount = 0;
+let latencyHistory = [];
+
+// Initialize performance monitoring
+document.addEventListener('DOMContentLoaded', function() {
+    loadPerformanceMetrics();
+    initializeChart();
+    setInterval(updateAnalytics, 5000); // Update every 5 seconds
+});
+
+// Load OpenVINO performance metrics
+async function loadPerformanceMetrics() {
+    try {
+        const response = await fetch('/api/openvino/performance');
+        const metrics = await response.json();
+        
+        document.getElementById('deviceType').textContent = metrics.device;
+        document.getElementById('latencyValue').textContent = metrics.inference_latency_ms.text_generation;
+        document.getElementById('throughputValue').textContent = metrics.throughput_ops_per_sec.text_generation;
+    } catch (error) {
+        console.error('Failed to load performance metrics:', error);
+    }
+}
+
+// Voice Recording Functions
+async function toggleRecording() {
+    if (!isRecording) {
+        startRecording();
+    } else {
+        stopRecording();
+    }
+}
+
+async function startRecording() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        
+        mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        };
+        
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            await processVoiceInput(audioBlob);
+        };
+        
+        mediaRecorder.start();
+        isRecording = true;
+        
+        document.getElementById('recordBtn').innerHTML = '<i class="fas fa-stop me-1"></i>Stop Recording';
+        document.getElementById('recordBtn').className = 'btn btn-warning';
+        document.getElementById('transcriptText').textContent = 'Recording... Speak now!';
+        
+    } catch (error) {
+        console.error('Error starting recording:', error);
+        alert('Microphone access required for voice input');
+    }
+}
+
+function stopRecording() {
+    if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        
+        document.getElementById('recordBtn').innerHTML = '<i class="fas fa-microphone me-1"></i>Start Recording';
+        document.getElementById('recordBtn').className = 'btn btn-danger';
+        document.getElementById('transcriptText').textContent = 'Processing...';
+    }
+}
+
+// Process voice input
+async function processVoiceInput(audioBlob) {
+    const startTime = Date.now();
+    
+    try {
+        const formData = new FormData();
+        formData.append('audio', audioBlob);
+        formData.append('session_id', sessionId);
+        
+        const response = await fetch('/api/multimodal/voice', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        const latency = Date.now() - startTime;
+        
+        if (result.success) {
+            document.getElementById('transcriptText').textContent = result.transcript;
+            displayAIResponse(result.response, 'voice', latency);
+            document.getElementById('playBtn').disabled = false;
+            updateMetrics('voice', latency);
+        } else {
+            document.getElementById('transcriptText').textContent = 'Error: ' + result.error;
+        }
+        
+    } catch (error) {
+        console.error('Voice processing error:', error);
+        document.getElementById('transcriptText').textContent = 'Error processing voice input';
+    }
+}
+
+// Image analysis
+async function analyzeImage() {
+    const fileInput = document.getElementById('imageInput');
+    const context = document.getElementById('imageContext').value;
+    
+    if (!fileInput.files[0]) {
+        alert('Please select an image first');
+        return;
+    }
+    
+    const startTime = Date.now();
+    
+    try {
+        const formData = new FormData();
+        formData.append('image', fileInput.files[0]);
+        formData.append('context', context);
+        formData.append('session_id', sessionId);
+        
+        // Show image preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('imagePreview').innerHTML = 
+                `<img src="${e.target.result}" class="img-fluid rounded" style="max-height: 200px;">`;
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+        
+        const response = await fetch('/api/multimodal/image', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        const latency = Date.now() - startTime;
+        
+        if (result.success) {
+            displayImageAnalysis(result, latency);
+            updateMetrics('image', latency);
+        } else {
+            displayAIResponse('Error: ' + result.error, 'error', latency);
+        }
+        
+    } catch (error) {
+        console.error('Image analysis error:', error);
+        displayAIResponse('Error analyzing image', 'error', 0);
+    }
+}
+
+// Process text input
+async function processTextInput() {
+    const text = document.getElementById('textInput').value.trim();
+    const type = document.getElementById('textInteractionType').value;
+    
+    if (!text) return;
+    
+    const startTime = Date.now();
+    
+    try {
+        const response = await fetch('/api/enhanced_chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: text,
+                type: type,
+                session_id: sessionId
+            })
+        });
+        
+        const result = await response.json();
+        const latency = Date.now() - startTime;
+        
+        if (result.success) {
+            displayAIResponse(result.response, 'text', latency);
+            displaySuggestions(result.suggestions);
+            updateMetrics('text', latency);
+        } else {
+            displayAIResponse('Error: ' + result.error, 'error', latency);
+        }
+        
+        document.getElementById('textInput').value = '';
+        
+    } catch (error) {
+        console.error('Text processing error:', error);
+        displayAIResponse('Error processing text input', 'error', 0);
+    }
+}
+
+// Display AI response
+function displayAIResponse(response, type, latency) {
+    const responseArea = document.getElementById('responseArea');
+    const typeIcon = type === 'voice' ? 'fa-volume-up' : type === 'image' ? 'fa-image' : 'fa-comments';
+    
+    responseArea.innerHTML = `
+        <div class="ai-response p-3 bg-light rounded">
+            <div class="response-header mb-2">
+                <i class="fas ${typeIcon} me-2 text-primary"></i>
+                <strong>AI Response (${type})</strong>
+                <span class="badge bg-secondary ms-2">${latency}ms</span>
+            </div>
+            <div class="response-content">
+                ${response}
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('responseDetails').style.display = 'block';
+    document.getElementById('responseTime').textContent = latency;
+    document.getElementById('confidenceScore').textContent = '89'; // Simulated confidence
+}
+
+// Display image analysis results
+function displayImageAnalysis(result, latency) {
+    const responseArea = document.getElementById('responseArea');
+    
+    responseArea.innerHTML = `
+        <div class="ai-response p-3 bg-light rounded">
+            <div class="response-header mb-2">
+                <i class="fas fa-image me-2 text-primary"></i>
+                <strong>Image Analysis</strong>
+                <span class="badge bg-secondary ms-2">${latency}ms</span>
+            </div>
+            <div class="analysis-content">
+                <h6>Detected Elements:</h6>
+                <ul>
+                    ${result.analysis.detected_objects.map(obj => `<li>${obj}</li>`).join('')}
+                </ul>
+                <h6>Educational Insights:</h6>
+                <ul>
+                    ${result.insights.map(insight => `<li>${insight}</li>`).join('')}
+                </ul>
+            </div>
+        </div>
+    `;
+    
+    displaySuggestions(result.suggestions);
+    
+    document.getElementById('responseDetails').style.display = 'block';
+    document.getElementById('responseTime').textContent = latency;
+    document.getElementById('confidenceScore').textContent = Math.round(result.analysis.confidence * 100);
+}
+
+// Display suggestions
+function displaySuggestions(suggestions) {
+    const suggestionsArea = document.getElementById('suggestionsArea');
+    const suggestionsList = document.getElementById('suggestionsList');
+    
+    if (suggestions && suggestions.length > 0) {
+        suggestionsList.innerHTML = suggestions.map(suggestion => 
+            `<button class="btn btn-outline-primary btn-sm" onclick="useSuggestion('${suggestion}')">${suggestion}</button>`
+        ).join('');
+        suggestionsArea.style.display = 'block';
+    }
+}
+
+// Use suggestion
+function useSuggestion(suggestion) {
+    document.getElementById('textInput').value = suggestion;
+    processTextInput();
+}
+
+// Update metrics
+function updateMetrics(type, latency) {
+    interactionCount++;
+    latencyHistory.push(latency);
+    
+    document.getElementById('totalInteractions').textContent = interactionCount;
+    
+    if (latencyHistory.length > 0) {
+        const avgLatency = latencyHistory.reduce((a, b) => a + b, 0) / latencyHistory.length;
+        document.getElementById('avgLatency').textContent = Math.round(avgLatency);
+    }
+    
+    if (type === 'voice') {
+        const current = parseInt(document.getElementById('voiceInteractions').textContent);
+        document.getElementById('voiceInteractions').textContent = current + 1;
+    } else if (type === 'image') {
+        const current = parseInt(document.getElementById('imageAnalyses').textContent);
+        document.getElementById('imageAnalyses').textContent = current + 1;
+    }
+}
+
+// Initialize performance chart
+let performanceChart;
+
+function initializeChart() {
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    performanceChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Response Latency (ms)',
+                data: [],
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Update analytics
+function updateAnalytics() {
+    if (latencyHistory.length > 0) {
+        const currentTime = new Date().toLocaleTimeString();
+        const latestLatency = latencyHistory[latencyHistory.length - 1];
+        
+        performanceChart.data.labels.push(currentTime);
+        performanceChart.data.datasets[0].data.push(latestLatency);
+        
+        // Keep only last 10 data points
+        if (performanceChart.data.labels.length > 10) {
+            performanceChart.data.labels.shift();
+            performanceChart.data.datasets[0].data.shift();
+        }
+        
+        performanceChart.update();
+    }
+}
+
+// Play audio response (placeholder)
+function playResponse() {
+    // In a real implementation, this would play the audio response
+    alert('Audio response would play here');
+}
+
+// Enter key support for text input
+document.getElementById('textInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        processTextInput();
+    }
+});
+</script>
+
+<style>
+.demo-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+
+.performance-metrics {
+    margin-top: 1rem;
+}
+
+.metric-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.input-section {
+    border-left: 4px solid #007bff;
+    padding-left: 1rem;
+}
+
+.voice-controls .btn {
+    border-radius: 25px;
+}
+
+.ai-response {
+    border-left: 4px solid #28a745;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.chart-container {
+    height: 300px;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #28a745, #1e7e34);
+}
+
+.bg-gradient-dark {
+    background: linear-gradient(135deg, #343a40, #23272b);
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #17a2b8, #117a8b);
+}
+</style>
+{% endblock %}

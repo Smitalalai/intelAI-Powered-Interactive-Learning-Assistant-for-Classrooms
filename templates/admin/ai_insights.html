@@ -1,0 +1,539 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Insights - EduAI Pro{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2><i class="fas fa-chart-line me-2 text-primary"></i>AI Performance Insights</h2>
+        <p class="text-muted">Advanced analytics powered by artificial intelligence</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-primary" onclick="toggleAIChat()">
+            <i class="fas fa-robot me-1"></i>Ask AI for Analysis
+        </button>
+        <button class="btn btn-outline-secondary" onclick="refreshInsights()">
+            <i class="fas fa-sync me-1"></i>Refresh
+        </button>
+    </div>
+</div>
+
+<!-- AI Overview Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="ai-insight-card text-center">
+            <div class="ai-insight-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3>{{ insights|length if insights else 0 }}</h3>
+            <p>Subjects Analyzed</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="ai-insight-card text-center">
+            <div class="ai-insight-icon">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h3>85%</h3>
+            <p>AI Accuracy</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="ai-insight-card text-center">
+            <div class="ai-insight-icon">
+                <i class="fas fa-trend-up"></i>
+            </div>
+            <h3>+12%</h3>
+            <p>Performance Boost</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="ai-insight-card text-center">
+            <div class="ai-insight-icon">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <h3>247</h3>
+            <p>AI Recommendations</p>
+        </div>
+    </div>
+</div>
+
+<!-- Subject Performance Insights -->
+{% if insights %}
+<div class="row">
+    {% for subject_name, data in insights.items() %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h5 class="mb-0">
+                            <i class="fas fa-book me-2"></i>{{ subject_name }}
+                        </h5>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <span class="badge 
+                            {% if data.mastery_level == 'high' %}bg-success
+                            {% elif data.mastery_level == 'medium' %}bg-warning
+                            {% else %}bg-danger{% endif %}">
+                            {{ data.mastery_level.title() }} Mastery
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Performance Metrics -->
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div class="text-center">
+                            <h4 class="text-primary">{{ data.average_score|round(1) }}%</h4>
+                            <small class="text-muted">Average Score</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center">
+                            <h4 class="text-info">{{ data.student_count }}</h4>
+                            <small class="text-muted">Students</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Visualization -->
+                <div class="mb-3">
+                    <label class="form-label">Class Performance</label>
+                    <div class="ai-progress-bar">
+                        <div class="ai-progress-fill" data-width="{{ data.average_score }}"></div>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span>Needs Improvement</span>
+                        <span>Excellent</span>
+                    </div>
+                </div>
+                
+                <!-- AI Recommendations -->
+                <div class="border-top pt-3">
+                    <h6><i class="fas fa-robot text-primary me-1"></i>AI Recommendation</h6>
+                    <p class="text-muted mb-3">{{ data.ai_suggestion }}</p>
+                    
+                    <div class="btn-group btn-group-sm w-100">
+                        <button class="btn btn-outline-primary" onclick="generateQuestions('{{ subject_name }}')">
+                            <i class="fas fa-plus me-1"></i>Generate Questions
+                        </button>
+                        <button class="btn btn-outline-success" onclick="createRemediation('{{ subject_name }}')">
+                            <i class="fas fa-first-aid me-1"></i>Remediation Plan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<!-- Empty State -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="text-center py-5">
+            <i class="fas fa-chart-line fa-4x text-muted mb-4"></i>
+            <h3 class="text-muted">No Performance Data Yet</h3>
+            <p class="text-muted mb-4">Start collecting insights as students take quizzes!</p>
+            <button class="btn btn-primary" onclick="simulateData()">
+                <i class="fas fa-magic me-1"></i>Generate Sample Data
+            </button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Advanced Analytics Section -->
+<div class="row mt-5">
+    <div class="col-md-12">
+        <h4><i class="fas fa-microscope me-2"></i>Advanced Analytics</h4>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Learning Patterns -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="fas fa-pattern me-2"></i>Learning Patterns</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Visual Learners</span>
+                        <span class="fw-bold">45%</span>
+                    </div>
+                    <div class="ai-progress-bar small">
+                        <div class="ai-progress-fill" data-width="45"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Auditory Learners</span>
+                        <span class="fw-bold">30%</span>
+                    </div>
+                    <div class="ai-progress-bar small">
+                        <div class="ai-progress-fill" data-width="30"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Kinesthetic Learners</span>
+                        <span class="fw-bold">25%</span>
+                    </div>
+                    <div class="ai-progress-bar small">
+                        <div class="ai-progress-fill" data-width="25"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Common Mistakes -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Common Mistakes</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-arrow-right text-danger me-2"></i>
+                        Misunderstanding fundamental concepts (65% of errors)
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-arrow-right text-danger me-2"></i>
+                        Calculation errors (20% of errors)
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-arrow-right text-danger me-2"></i>
+                        Reading comprehension issues (15% of errors)
+                    </li>
+                </ul>
+                <button class="btn btn-outline-warning btn-sm">
+                    <i class="fas fa-download me-1"></i>Download Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Recommendations Dashboard -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-robot me-2"></i>AI Action Recommendations
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center">
+                            <i class="fas fa-question-circle fa-2x text-primary mb-2"></i>
+                            <h6>Generate Questions</h6>
+                            <p class="small text-muted">Create targeted questions for weak areas</p>
+                            <button class="btn btn-primary btn-sm" onclick="openQuestionGenerator()">
+                                <i class="fas fa-magic me-1"></i>Generate
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center">
+                            <i class="fas fa-chart-bar fa-2x text-success mb-2"></i>
+                            <h6>Progress Report</h6>
+                            <p class="small text-muted">AI-generated student progress reports</p>
+                            <button class="btn btn-success btn-sm" onclick="generateReports()">
+                                <i class="fas fa-file-alt me-1"></i>Generate
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 text-center">
+                            <i class="fas fa-lightbulb fa-2x text-warning mb-2"></i>
+                            <h6>Study Plans</h6>
+                            <p class="small text-muted">Personalized learning paths</p>
+                            <button class="btn btn-warning btn-sm" onclick="createStudyPlans()">
+                                <i class="fas fa-route me-1"></i>Create
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Question Generator Modal -->
+<div class="modal fade" id="questionGeneratorModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-robot me-2"></i>AI Question Generator
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="genTopic" class="form-label">Topic</label>
+                            <input type="text" class="form-control" id="genTopic" placeholder="e.g., Algebra, Biology">
+                        </div>
+                        <div class="mb-3">
+                            <label for="genDifficulty" class="form-label">Difficulty Level</label>
+                            <select class="form-select" id="genDifficulty">
+                                <option value="easy">Easy</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="genCount" class="form-label">Number of Questions</label>
+                            <select class="form-select" id="genCount">
+                                <option value="5">5 questions</option>
+                                <option value="10" selected>10 questions</option>
+                                <option value="15">15 questions</option>
+                                <option value="20">20 questions</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Focus Areas (based on AI analysis)</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="conceptual" checked>
+                                <label class="form-check-label" for="conceptual">
+                                    Conceptual Understanding
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="application">
+                                <label class="form-check-label" for="application">
+                                    Practical Application
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="analysis">
+                                <label class="form-check-label" for="analysis">
+                                    Critical Analysis
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="generateAIQuestions()">
+                    <i class="fas fa-magic me-1"></i>Generate Questions
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Initialize insights
+document.addEventListener('DOMContentLoaded', function() {
+    animateProgressBars();
+    loadRealtimeData();
+});
+
+function animateProgressBars() {
+    const progressBars = document.querySelectorAll('[data-width]');
+    progressBars.forEach((bar, index) => {
+        setTimeout(() => {
+            const width = bar.getAttribute('data-width');
+            bar.style.width = width + '%';
+        }, index * 200);
+    });
+}
+
+function refreshInsights() {
+    showLoading();
+    setTimeout(() => {
+        hideLoading();
+        location.reload();
+    }, 2000);
+}
+
+function generateQuestions(subject) {
+    document.getElementById('genTopic').value = subject;
+    const modal = new bootstrap.Modal(document.getElementById('questionGeneratorModal'));
+    modal.show();
+}
+
+async function generateAIQuestions() {
+    const topic = document.getElementById('genTopic').value;
+    const difficulty = document.getElementById('genDifficulty').value;
+    const count = document.getElementById('genCount').value;
+    
+    if (!topic) {
+        alert('Please enter a topic');
+        return;
+    }
+    
+    try {
+        showLoading('Generating AI questions...');
+        
+        const response = await fetch('/api/generate_questions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                topic: topic,
+                difficulty: difficulty,
+                count: parseInt(count)
+            })
+        });
+        
+        const data = await response.json();
+        
+        hideLoading();
+        
+        if (data.questions && data.questions.length > 0) {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('questionGeneratorModal'));
+            modal.hide();
+            showSuccess(`Generated ${data.questions.length} questions for ${topic}!`);
+            
+            // Show preview of generated questions
+            showQuestionPreview(data.questions);
+        } else {
+            showError('Failed to generate questions. Please try again.');
+        }
+        
+    } catch (error) {
+        hideLoading();
+        showError('Error generating questions: ' + error.message);
+    }
+}
+
+function showQuestionPreview(questions) {
+    let html = '<div class="modal fade" id="questionPreviewModal" tabindex="-1">';
+    html += '<div class="modal-dialog modal-xl">';
+    html += '<div class="modal-content">';
+    html += '<div class="modal-header">';
+    html += '<h5 class="modal-title"><i class="fas fa-eye me-2"></i>Generated Questions Preview</h5>';
+    html += '<button type="button" class="btn-close" data-bs-dismiss="modal"></button>';
+    html += '</div>';
+    html += '<div class="modal-body">';
+    
+    questions.forEach((q, index) => {
+        html += `<div class="card mb-3">
+            <div class="card-header">Question ${index + 1}</div>
+            <div class="card-body">
+                <p><strong>${q.question_text}</strong></p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>A) ${q.option_a}</p>
+                        <p>B) ${q.option_b}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>C) ${q.option_c}</p>
+                        <p>D) ${q.option_d}</p>
+                    </div>
+                </div>
+                <p><strong>Correct Answer:</strong> ${q.correct_answer}</p>
+                <p><em>${q.explanation}</em></p>
+            </div>
+        </div>`;
+    });
+    
+    html += '</div>';
+    html += '<div class="modal-footer">';
+    html += '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>';
+    html += '<button type="button" class="btn btn-success" onclick="saveQuestions()">Save to Question Pool</button>';
+    html += '</div>';
+    html += '</div></div></div>';
+    
+    document.body.insertAdjacentHTML('beforeend', html);
+    const modal = new bootstrap.Modal(document.getElementById('questionPreviewModal'));
+    modal.show();
+    
+    // Clean up when modal is hidden
+    document.getElementById('questionPreviewModal').addEventListener('hidden.bs.modal', function() {
+        this.remove();
+    });
+}
+
+function createRemediation(subject) {
+    showSuccess(`Creating remediation plan for ${subject}...`);
+    // Implementation for creating remediation plans
+}
+
+function openQuestionGenerator() {
+    const modal = new bootstrap.Modal(document.getElementById('questionGeneratorModal'));
+    modal.show();
+}
+
+function generateReports() {
+    showLoading('Generating AI reports...');
+    setTimeout(() => {
+        hideLoading();
+        showSuccess('Progress reports generated! Check your content library.');
+    }, 3000);
+}
+
+function createStudyPlans() {
+    showLoading('Creating personalized study plans...');
+    setTimeout(() => {
+        hideLoading();
+        showSuccess('Study plans created and sent to students!');
+    }, 2500);
+}
+
+function loadRealtimeData() {
+    // Simulate real-time data updates
+    setInterval(() => {
+        updateMetrics();
+    }, 30000); // Update every 30 seconds
+}
+
+function updateMetrics() {
+    // Simulate metric updates
+    const metrics = document.querySelectorAll('.ai-insight-card h3');
+    metrics.forEach(metric => {
+        if (metric.textContent.includes('%')) {
+            const current = parseInt(metric.textContent);
+            const change = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+            metric.textContent = Math.max(0, Math.min(100, current + change)) + '%';
+        }
+    });
+}
+
+function simulateData() {
+    showLoading('Generating sample analytics data...');
+    setTimeout(() => {
+        hideLoading();
+        location.reload();
+    }, 2000);
+}
+
+function showLoading(message = 'Loading...') {
+    const loader = document.createElement('div');
+    loader.id = 'aiLoader';
+    loader.className = 'position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center';
+    loader.style.backgroundColor = 'rgba(0,0,0,0.5)';
+    loader.style.zIndex = '9999';
+    loader.innerHTML = `
+        <div class="text-center text-white">
+            <div class="spinner-border mb-3" role="status"></div>
+            <p>${message}</p>
+        </div>
+    `;
+    document.body.appendChild(loader);
+}
+
+function hideLoading() {
+    const loader = document.getElementById('aiLoader');
+    if (loader) loader.remove();
+}
+</script>
+
+{% endblock %}

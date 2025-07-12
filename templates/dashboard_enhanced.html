@@ -145,6 +145,41 @@
             </div>
         </div>
     </div>
+    
+    <!-- Admin Analytics Overview -->
+    {% if ai_insights %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar me-2"></i>Quick Analytics Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h3 class="text-primary">{{ ai_insights.get('total_students', 0) }}</h3>
+                                <p class="text-muted">Total Students</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h3 class="text-success">{{ ai_insights.get('total_attempts', 0) }}</h3>
+                                <p class="text-muted">Quiz Attempts</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h3 class="text-info">{{ ai_insights.get('average_performance', 0)|round(1) }}%</h3>
+                                <p class="text-muted">Average Performance</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
 {% else %}
     <!-- Student Dashboard -->
@@ -157,7 +192,7 @@
     <div class="row mt-3">
         {% for subject in subjects %}
             <div class="col-md-4 mb-4">
-                <div class="card h-100 subject-card">
+                <div class="card h-100 subject-card" style="transition: all 0.3s ease;">
                     <div class="card-body text-center">
                         <div class="mb-3">
                             <i class="fas fa-book-open fa-3x text-primary"></i>
@@ -181,42 +216,115 @@
         {% endfor %}
     </div>
 
-    <div class="row mt-4">
+    <!-- Recent Quiz Attempts -->
+    {% if attempts %}
+    <div class="row mt-5">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header">Your Recent Quiz Attempts</div>
+                <div class="card-header">
+                    <h5><i class="fas fa-history me-2"></i>Your Recent Quiz Attempts</h5>
+                </div>
                 <div class="card-body">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Quiz</th>
-                                <th>Score</th>
-                                <th>Percentage</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for attempt in attempts %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
                                 <tr>
-                                    <td>{{ attempt.quiz.name }}</td>
-                                    <td>{{ attempt.score }}/{{ attempt.total_questions }}</td>
-                                    <td>{{ attempt.percentage|round(2) }}%</td>
-                                    <td>{{ attempt.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
-                                    <td>
-                                        <a href="{{ url_for('quiz_results', attempt_id=attempt.id) }}" class="btn btn-sm btn-info">View Results</a>
-                                    </td>
+                                    <th><i class="fas fa-clipboard-list me-1"></i>Quiz</th>
+                                    <th><i class="fas fa-star me-1"></i>Score</th>
+                                    <th><i class="fas fa-percentage me-1"></i>Percentage</th>
+                                    <th><i class="fas fa-calendar me-1"></i>Date</th>
+                                    <th><i class="fas fa-cog me-1"></i>Actions</th>
                                 </tr>
-                            {% else %}
-                                <tr>
-                                    <td colspan="5">No quiz attempts yet.</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {% for attempt in attempts %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ attempt.quiz.name }}</strong><br>
+                                            <small class="text-muted">{{ attempt.quiz.chapter.subject.name }} - {{ attempt.quiz.chapter.name }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary fs-6">{{ attempt.score }}/{{ attempt.total_questions }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="ai-progress-bar me-2" style="width: 60px;">
+                                                    <div class="ai-progress-fill" style="width: {{ attempt.percentage }}%;"></div>
+                                                </div>
+                                                <span class="fw-bold 
+                                                    {% if attempt.percentage >= 80 %}text-success
+                                                    {% elif attempt.percentage >= 60 %}text-warning
+                                                    {% else %}text-danger{% endif %}">
+                                                    {{ attempt.percentage|round(1) }}%
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>{{ attempt.start_time.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            <a href="{{ url_for('quiz_results', attempt_id=attempt.id) }}" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-eye me-1"></i>View Results
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-success" 
+                                                    onclick="createFlashcardsFromQuiz('{{ attempt.quiz.chapter.name }}')">
+                                                <i class="fas fa-cards-blank me-1"></i>Make Flashcards
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    {% endif %}
+    
+    <!-- AI Recommendations -->
+    {% if ai_insights.get('recent_interactions') %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5><i class="fas fa-robot me-2"></i>AI Recommendations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-lightbulb text-warning me-2"></i>Study Suggestions</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-arrow-right text-primary me-2"></i>Review topics where you scored below 70%</li>
+                                <li><i class="fas fa-arrow-right text-primary me-2"></i>Practice flashcards for better retention</li>
+                                <li><i class="fas fa-arrow-right text-primary me-2"></i>Try voice explanations for complex topics</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-chart-line text-success me-2"></i>Progress Insights</h6>
+                            {% if ai_insights.insight %}
+                                <p class="text-muted">{{ ai_insights.insight }}</p>
+                            {% endif %}
+                            <button class="btn btn-primary btn-sm" onclick="toggleAIChat()">
+                                <i class="fas fa-comments me-1"></i>Ask AI for Personalized Tips
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
 {% endif %}
+
+<style>
+.subject-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+</style>
+
 {% endblock %}

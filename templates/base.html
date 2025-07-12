@@ -3,47 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Quiz Master{% endblock %}</title>
+    <title>{% block title %}EduAI Pro{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-features.css') }}">
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="{{url_for('landing') }}">Quiz Master</a>
-<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" title="Toggle navigation">
-
+            <a class="navbar-brand" href="{{url_for('landing') }}">
+                <i class="fas fa-graduation-cap me-2"></i>EduAI Pro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" title="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     {% if session.get('user_id') %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                            <a class="nav-link" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                            </a>
                         </li>
+                        {% if not session.get('is_admin') %}                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('learning_journal') }}">
+                                <i class="fas fa-journal-whills me-1"></i>Learning Journal
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('flashcards') }}">
+                                <i class="fas fa-cards-blank me-1"></i>Flashcards
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('multimodal_demo') }}">
+                                <i class="fas fa-robot me-1"></i>AI Demo (OpenVINO)
+                            </a>
+                        </li>
+                        {% endif %}
                         {% if session.get('is_admin') %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('admin_subjects') }}">Subjects</a>
+                                <a class="nav-link" href="{{ url_for('admin_subjects') }}">
+                                    <i class="fas fa-book me-1"></i>Subjects
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('admin_chapters') }}">Chapters</a>
+                                <a class="nav-link" href="{{ url_for('admin_chapters') }}">
+                                    <i class="fas fa-bookmark me-1"></i>Chapters
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('admin_pools') }}">Question Pools</a>
+                                <a class="nav-link" href="{{ url_for('admin_pools') }}">
+                                    <i class="fas fa-question-circle me-1"></i>Question Pools
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('admin_quizzes') }}">Quizzes</a>
+                                <a class="nav-link" href="{{ url_for('admin_quizzes') }}">
+                                    <i class="fas fa-clipboard-list me-1"></i>Quizzes
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('admin_users') }}">Users</a>
+                                <a class="nav-link" href="{{ url_for('admin_users') }}">
+                                    <i class="fas fa-users me-1"></i>Users
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('admin_ai_insights') }}">
+                                    <i class="fas fa-chart-line me-1"></i>AI Insights
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ url_for('content_library') }}">
+                                    <i class="fas fa-folder-open me-1"></i>Content Library
+                                </a>
                             </li>
                         {% endif %}
                     {% endif %}
                 </ul>
+                
+                <!-- Search Bar -->
+                {% if session.get('user_id') %}
+                <div class="me-3">
+                    <div class="input-group">
+                        <input type="text" class="form-control form-control-sm" placeholder="Search everywhere..." id="globalSearch">
+                        <button class="btn btn-outline-light btn-sm" type="button" id="searchBtn" title="Search">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+                
                 <ul class="navbar-nav">
                     {% if session.get('user_id') %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-bell notification-bell"></i>
+                                <span class="badge bg-danger" id="notificationCount">3</span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="notificationDropdown">
+                                <li><h6 class="dropdown-header">AI Notifications</h6></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-lightbulb text-warning me-2"></i>New study suggestion available</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-trophy text-success me-2"></i>Great progress in Math!</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-clock text-info me-2"></i>Time for flashcard review</a></li>
+                            </ul>
+                        </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                            <a class="nav-link" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                            </a>
                         </li>
                     {% else %}
                         <li class="nav-item">
@@ -72,6 +140,42 @@
         {% block content %}{% endblock %}
     </div>
 
+    <!-- AI Chat Widget -->
+    {% if session.get('user_id') %}
+    <div class="ai-chat-widget">
+        <div class="ai-chat-panel" id="aiChatPanel">
+            <div class="ai-chat-header">
+                <div>
+                    <i class="fas fa-robot me-2"></i>
+                    <strong>AI Assistant</strong>
+                </div>
+                <button class="btn btn-sm text-white" onclick="toggleAIChat()" title="Close chat">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="ai-chat-messages" id="aiChatMessages">
+                <div class="ai-message">
+                    <i class="fas fa-robot me-2"></i>
+                    Hi! I'm your AI learning assistant. How can I help you today?
+                </div>
+            </div>
+            <div class="ai-chat-input">
+                <input type="text" class="form-control" id="aiChatInput" placeholder="Ask me anything..." />
+                <button class="voice-input-btn" id="voiceInputBtn" title="Voice input">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="btn btn-primary" onclick="sendAIMessage()" title="Send message">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        <button class="ai-chat-button" onclick="toggleAIChat()" title="Open AI Assistant">
+            <i class="fas fa-robot"></i>
+        </button>
+    </div>
+    {% endif %}
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/ai-features.js') }}"></script>
 </body>
 </html>

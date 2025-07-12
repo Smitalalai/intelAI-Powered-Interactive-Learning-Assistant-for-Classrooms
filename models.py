@@ -93,3 +93,67 @@ class UserAnswer(db.Model):
     question_id = db.Column(db.Integer, db.ForeignKey('pool_questions.id'), nullable=False)
     user_answer = db.Column(db.String(1))  # 'A', 'B', 'C', or 'D'
     is_correct = db.Column(db.Boolean, default=False)
+
+# New AI-Enhanced Models
+
+class LearningJournal(db.Model):
+    __tablename__ = 'learning_journals'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    date = db.Column(db.Date, default=datetime.utcnow)
+    content = db.Column(db.Text)
+    mood = db.Column(db.String(50))
+    difficulty_level = db.Column(db.String(50))
+    ai_feedback = db.Column(db.Text)
+    tags = db.Column(db.String(200))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user = db.relationship('User', backref='journal_entries')
+
+class Flashcard(db.Model):
+    __tablename__ = 'flashcards'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    topic = db.Column(db.String(100), nullable=False)
+    front_text = db.Column(db.Text, nullable=False)
+    back_text = db.Column(db.Text, nullable=False)
+    difficulty = db.Column(db.String(20), default='medium')
+    next_review_date = db.Column(db.DateTime)
+    review_count = db.Column(db.Integer, default=0)
+    success_rate = db.Column(db.Float, default=0.0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    user = db.relationship('User', backref='flashcards')
+
+class AIInteraction(db.Model):
+    __tablename__ = 'ai_interactions'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    interaction_type = db.Column(db.String(50))  # 'chat', 'hint_request', 'explanation', etc.
+    content = db.Column(db.Text)  # User input content
+    ai_response = db.Column(db.Text)
+    context_metadata = db.Column(db.Text)  # JSON string for additional context
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    user = db.relationship('User', backref='ai_interactions')
+
+class ContentLibrary(db.Model):
+    __tablename__ = 'content_library'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    content_type = db.Column(db.String(50))  # 'pdf', 'ppt', 'image', 'text'
+    file_path = db.Column(db.String(500))
+    ai_analysis = db.Column(db.Text)  # AI analysis results
+    content_metadata = db.Column(db.Text)  # JSON metadata
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'))
+    user = db.relationship('User', backref='content_files')
+    subject = db.relationship('Subject', backref='content_files')
+
+class StudentInsight(db.Model):
+    __tablename__ = 'student_insights'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    insight_type = db.Column(db.String(50))  # 'performance', 'learning_pattern', 'suggestion'
+    insight_data = db.Column(db.Text)  # JSON string with insight details
+    generated_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+    user = db.relationship('User', backref='insights')

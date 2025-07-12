@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+
+{% block title %}Learning Journal - EduAI Pro{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2><i class="fas fa-journal-whills me-2 text-primary"></i>My Learning Journal</h2>
+        <p class="text-muted">Track your learning progress and reflect on your quiz experiences</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reflectionModal">
+            <i class="fas fa-plus me-1"></i>Add Reflection
+        </button>
+    </div>
+</div>
+
+<!-- AI Insights Summary -->
+{% if ai_insights %}
+<div class="ai-insight-card mb-4">
+    <div class="ai-insight-icon">
+        <i class="fas fa-brain"></i>
+    </div>
+    <h4>Your Learning Insights</h4>
+    <p>{{ ai_insights.insight }}</p>
+    {% if ai_insights.trend %}
+        <div class="mt-3">
+            <span class="badge bg-light text-dark me-2">
+                <i class="fas fa-chart-line me-1"></i>Trend: {{ ai_insights.trend.title() }}
+            </span>
+            {% if ai_insights.average_score %}
+                <span class="badge bg-light text-dark">
+                    <i class="fas fa-star me-1"></i>Average: {{ ai_insights.average_score|round(1) }}%
+                </span>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Recent Quiz Performance -->
+{% if recent_attempts %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Recent Performance</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for attempt in recent_attempts[:3] %}
+                    <div class="col-md-4">
+                        <div class="text-center p-3 border rounded">
+                            <h6 class="text-truncate">{{ attempt.quiz.name }}</h6>
+                            <div class="ai-progress-bar mb-2">
+                                <div class="ai-progress-fill" data-width="{{ attempt.percentage }}"></div>
+                            </div>
+                            <span class="fw-bold 
+                                {% if attempt.percentage >= 80 %}text-success
+                                {% elif attempt.percentage >= 60 %}text-warning  
+                                {% else %}text-danger{% endif %}">
+                                {{ attempt.percentage|round(1) }}%
+                            </span>
+                            <br>
+                            <small class="text-muted">{{ attempt.start_time.strftime('%m/%d') }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Journal Entries -->
+<div class="row">
+    <div class="col-md-12">
+        <h4><i class="fas fa-history me-2"></i>Journal Entries</h4>
+        
+        {% for entry in journal_entries %}
+        <div class="journal-entry">
+            <div class="journal-date">
+                <i class="fas fa-calendar me-1"></i>
+                {{ entry.date.strftime('%B %d, %Y') }}
+                {% if entry.subject %}
+                    <span class="badge bg-primary ms-2">{{ entry.subject }}</span>
+                {% endif %}
+            </div>
+            
+            {% if entry.performance_score %}
+            <div class="mb-2">
+                <small class="text-muted">Performance Score:</small>
+                <div class="ai-progress-bar d-inline-block ms-2" style="width: 100px; height: 6px;">
+                    <div class="ai-progress-fill" data-width="{{ entry.performance_score }}"></div>
+                </div>
+                <span class="ms-2 small">{{ entry.performance_score|round(1) }}%</span>
+            </div>
+            {% endif %}
+            
+            {% if entry.ai_feedback %}
+            <div class="mb-3">
+                <h6><i class="fas fa-robot text-primary me-1"></i>AI Feedback</h6>
+                <p class="text-muted">{{ entry.ai_feedback }}</p>
+            </div>
+            {% endif %}
+            
+            {% if entry.reflection_notes %}
+            <div class="mb-3">
+                <h6><i class="fas fa-user-edit text-info me-1"></i>My Reflection</h6>
+                <p>{{ entry.reflection_notes }}</p>
+            </div>
+            {% endif %}
+            
+            {% if entry.challenges %}
+            <div class="mb-2">
+                <h6><i class="fas fa-exclamation-triangle text-warning me-1"></i>Challenges</h6>
+                <p>{{ entry.challenges }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-journal-whills fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No journal entries yet</h4>
+            <p class="text-muted">Start reflecting on your learning journey!</p>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#reflectionModal">
+                <i class="fas fa-plus me-1"></i>Add Your First Entry
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- AI Study Suggestions -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>AI Study Suggestions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-target text-success me-1"></i>Focus Areas</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                Review chapters where you scored below 70%
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                Practice more multiple-choice questions
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                Use flashcards for concept retention
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-clock text-info me-1"></i>Study Schedule</h6>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                15 minutes daily flashcard review
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                Take practice quizzes weekly
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                Ask AI for explanations when stuck
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <button class="btn btn-primary" onclick="toggleAIChat()">
+                        <i class="fas fa-comments me-1"></i>Ask AI for Personalized Study Plan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reflection Modal -->
+<div class="modal fade" id="reflectionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-pen-fancy me-2"></i>Add Reflection Entry
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('learning_journal') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="subject" name="subject" 
+                               placeholder="e.g., Mathematics, Science">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="reflection_notes" class="form-label">What did you learn today?</label>
+                        <textarea class="form-control" id="reflection_notes" name="reflection_notes" 
+                                  rows="4" placeholder="Reflect on your learning experience..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="challenges" class="form-label">What challenges did you face?</label>
+                        <textarea class="form-control" id="challenges" name="challenges" 
+                                  rows="3" placeholder="Describe any difficulties or confusion..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">How confident do you feel about this topic?</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="confidence" id="conf1" value="20">
+                            <label class="btn btn-outline-danger" for="conf1">😕 Need Help</label>
+                            
+                            <input type="radio" class="btn-check" name="confidence" id="conf2" value="40">
+                            <label class="btn btn-outline-warning" for="conf2">😐 Getting There</label>
+                            
+                            <input type="radio" class="btn-check" name="confidence" id="conf3" value="60">
+                            <label class="btn btn-outline-info" for="conf3">🙂 Good</label>
+                            
+                            <input type="radio" class="btn-check" name="confidence" id="conf4" value="80">
+                            <label class="btn btn-outline-success" for="conf4">😊 Confident</label>
+                            
+                            <input type="radio" class="btn-check" name="confidence" id="conf5" value="100">
+                            <label class="btn btn-outline-success" for="conf5">🤩 Mastered</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>Save Entry
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Animate progress bars
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBars = document.querySelectorAll('[data-width]');
+    progressBars.forEach(bar => {
+        const width = bar.getAttribute('data-width');
+        setTimeout(() => {
+            bar.style.width = width + '%';
+        }, 300);
+    });
+});
+</script>
+
+{% endblock %}
